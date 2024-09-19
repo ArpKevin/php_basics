@@ -46,8 +46,8 @@ foreach ($users as $l => $j){
 
 
 <hr>
-<form action="index.php?login=valaki1" method="POST">
-    Login (valaki1): <input type="hidden" id="login" name="login" value="valaki1" autocomplete=off>
+<form action="index.php" method="POST">
+    Login (valaki1): <input type="text" id="login" name="login" value="valaki1" autocomplete=off>
     Jelszó: <input type="text" id="pass" name="pass" value="" autocomplete=off>
     Rejtett: <input type="hidden" name="bérlet" value="50 Ft">
     <input type="submit" value="Submit">
