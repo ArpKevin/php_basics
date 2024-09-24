@@ -1,3 +1,19 @@
+<?php
+session_start();
+
+if (isset($_POST['reset']) && $_POST['reset'] == 'true') {
+    // Destroy the session and reset the users
+    session_destroy();
+    session_start(); // Start a new session after destroying the old one
+
+    // Reinitialize the users after session reset
+    $_SESSION['users'] = array(
+        "airamek" => "turbodiesel",
+        "frisskenyer07" => "halacska",
+        "kecsketank" => "ak47"
+    );
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,37 +25,44 @@
         $jelszo = (isset($_POST["jelszo"]) ? $_POST["jelszo"] : "-");
         $berlet = (isset($_POST["berlet"]) ? $_POST["berlet"] : "0 Ft");
         $muvelet = (isset($_POST["muvelet"]) ? $_POST["muvelet"] : "belep");
-        $users = array(
-            "airamek" => "turbodiesel",
-            "frisskenyer07" => "halacska",
-            "kecsketank" => "ak47"
-        );
 
-        ksort($users);
+        if (!isset($_SESSION['users']) || $muvelet == "reset"){
+            $_SESSION['users'] = array(
+                "airamek" => "turbodiesel",
+                "frisskenyer07" => "halacska",
+                "kecsketank" => "ak47"
+            );
+        }
 
-        var_dump($users);
+        
+
+        ksort($_SESSION['users']);
+
+        var_dump($_SESSION['users']);
         $belepett = false;
 
         switch ($muvelet){
             case "belep":
-                $belepett = (isset($users[$login]) && $users[$login] == $jelszo);
+                $belepett = (isset($_SESSION['users'][$login]) && $_SESSION['users'][$login] == $jelszo);
                 break;
             case "reg":
-                if (isset($users[$login]))
+                if (isset($_SESSION['users'][$login]))
                     echo "<script>alert(\"Már létezik ilyen felhasználó!\");</script>";
                 elseif ($jelszo != '') {
-                    $users[$login] = $jelszo;
+                    $_SESSION['users'][$login] = $jelszo;
                 }
                 break;
             case "kivesz":
                 print "<h2>Kivesz (töröl)</h2>";
-                if (!(isset($users[$login]) && $users[$login] == $jelszo)) {
+                if (!(isset($_SESSION['users'][$login]) && $_SESSION['users'][$login] == $jelszo)) {
                     print "hibás login vagy jelszó";
                 } else {
-                    unset($users[$login]);
+                    unset($_SESSION['users'][$login]);
                 }
                 break;
         }
+
+        ksort($_SESSION['users']);
 
         print "
         <script>
@@ -67,18 +90,20 @@
     <mark>$berlet</mark>
     \n";
     echo "<br>";
-    foreach ($users as $user => $pass) {
+    foreach ($_SESSION['users'] as $user => $pass) {
         echo "$user - $pass <br>";
     }
     ?>
+
+<?php
+session_destroy();
+?>
     <hr>
     <form action="index.php" method="POST">
         <label for="login">Felhasználónév</label>
-        <!-- Preserve the entered login value -->
         <input type="text" name="login" id="login" autocomplete=off value="<?php echo isset($_REQUEST['login']) ? $_REQUEST['login'] : ''; ?>"> <br>
 
         <label for="jelszo">Jelszó</label>
-        <!-- Preserve the entered password value -->
         <input type="text" name="jelszo" id="jelszo" autocomplete=off value="<?php echo isset($_POST['jelszo']) ? $_POST['jelszo'] : ''; ?>"> 
         <br>
 
@@ -89,9 +114,11 @@
             <option value="belep" <?php echo ($muvelet == 'belep') ? 'selected' : ''; ?>>Belépés</option>
             <option value="reg" <?php echo ($muvelet == 'reg') ? 'selected' : ''; ?>>Regisztráció</option>
             <option value="kivesz" <?php echo ($muvelet == 'kivesz') ? 'selected' : ''; ?>>Kivesz</option>
+            <option value="reset" <?php echo ($muvelet == 'reset') ? 'selected' : ''; ?>>RESET</option>
         </select>
         <br>
         <input type="submit" value="Nyomjad">
     </form>
+</form>
 </body>
 </html>
